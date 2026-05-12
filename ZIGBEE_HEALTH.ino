@@ -86,7 +86,7 @@ int checkCoordinator() {
     
     //Device State 09 started as zigbeecoordinator     
     
-    consoleOut("checkZigbeeRadio");
+    if (diagNose !=0) consoleOut("checkZigbeeRadio");
     //if(log) Update_Log("zigbee", "checking zb module");
     //check the radio, send FE00670067
     // when ok the returned string = FE0E670000FFFF + ECU_ID REVERSE + 00000709001
@@ -122,7 +122,7 @@ int checkCoordinator() {
           // the tail should contain 0709
           if( strstr(tail, "0709") ) 
             {
-              consoleOut("found 0709, running oke");
+              if( diagNose != 0 ) consoleOut("found 0709, running oke");
               zigbeeUp = 1;
               return 0;            
             } 
@@ -202,4 +202,16 @@ void ZBhardReset()
     }
 
 
-    
+// function to 
+void consoleOut(String toLog) {
+ 
+  if( diagNose == 0 ) return; 
+  if (diagNose == 2 )
+  {
+    Serial.println(toLog);
+  } else {
+    delay(100); // otherwise the socket cannot keep up
+    ws.textAll(toLog);
+  }
+
+}    

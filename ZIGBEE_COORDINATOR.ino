@@ -15,8 +15,7 @@
  *  I haven't investigate this further, for now only the method used here works
  */
 
-bool coordinator(bool normal) 
-{ // if true we send the extra command for normal operations
+bool coordinator(bool normal) { // if true we send the extra command for normal operations
     consoleOut(F("starting coordinator"));
     //} else 
     //if(diagNose == 2) ws.textAll(F("starting coordinator")); 
@@ -26,6 +25,7 @@ bool coordinator(bool normal)
     delay(1000); // to give the ZB the time to start
     empty_serial2(); //otherwise the check fails
     if ( checkCoordinator() == 0 ) // can be 0 1 or 2
+     
     {
         Update_Log(2, "started");
         consoleOut(F("ZB coordinator started"));
@@ -70,14 +70,15 @@ void coordinator_init() {
     *  Finished. Heap=26712
     *  
     */
-    //Serial.println("coordinator init 1");
-    consoleOut("init zb coordinator");
+    Serial.println("cordinator init 1");
+    if( diagNose != 0 ) consoleOut("init zb coordinator");
     zigbeeUp = 11; //initial it is initializing 11, 0=down 1=up
     yield();    
     char ecu_id_reverse[13]; //= {ECU_REVERSE()};
     ECU_REVERSE().toCharArray(ecu_id_reverse, 13);
     char initCmd[254]={0};
     char s_d[254]={0}; // provide a buffer for the call to readZB
+Serial.println("cordinator init 1");
     // commands for setting up coordinater
     char initBaseCommand[][254] = {
       "2605030103", // ok   this is a ZB_WRITE_CONFIGURATION CMD //changed to 01
@@ -159,7 +160,7 @@ void sendNO() {
     String term = "send normal ops initCmd = " + String(noCmd);
     consoleOut(term); 
     sendZB( noCmd ); 
-  
+
     //check if anything was received
     //waitSerial2Available();
     readZB(s_d);//do nothing with the returned value
