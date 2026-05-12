@@ -29,7 +29,7 @@ void zendPageBasis(AsyncWebServerRequest *request) {
     //DebugPrintln("we zijn nu op zendPageBasis");
     webPage = FPSTR(HTML_HEAD);
     webPage += FPSTR(BASISCONFIG);
-    //Serial.println("basisconfig: ECU_ID = " + String(ECU_ID)); 
+    
     // replace data
     webPage.replace("'{id}'" , "'" + String(ECU_ID) + "'") ;
     webPage.replace( "'{pw1}'" , "'" + String(userPwd) + "'") ;
@@ -42,31 +42,29 @@ void zendPageBasis(AsyncWebServerRequest *request) {
 }
 
 
-//void handleBasisconfig(AsyncWebServerRequest *request) { // form action = handleConfigsave
-//// verzamelen van de serverargumenten   
-//   strcpy(ECU_ID, request->arg("ecuid").c_str());
-//   strcpy(userPwd, request->arg("pw1").c_str());
-////   pollRes = request->arg("pr").toInt();
-////   hc_IDX = request->arg("hcidx").toInt();
-//   pollOffset = request->arg("offs").toInt();  
-//// this value gets currupted when it is negative, we get 256 -/- the number
-//// so -2 becomes 254
-////   if (po > 200) { pollOffset = po - 256; } else { pollOffset = po; } 
-//   
-//   
-////   calliBration = request->arg("cali").toFloat();
-////BEWARE CHECKBOX
-////String dag = "";
-////if(request->hasParam("pL")) {
-////dag = request->getParam("pL")->value();  
-////}
-////   if (dag == "on") { Polling = true; } else { Polling = false;}
-//  //toSend = FPSTR(CONFIRM);
-//if(request->hasParam("pL")) { Polling = true; } else { Polling = false;}
-//  
-//  basisConfigsave();  // alles opslaan
-// // request->send_P(200, "text/html", CONFIRM); //send the html code to the client
-// 
-//  //DebugPrintln("basisconfig saved");
-//  actionFlag=25; // recalculates the time with these new values 
-//}
+void handleBasisconfig(AsyncWebServerRequest *request) { // form action = handleConfigsave
+// verzamelen van de serverargumenten   
+   strcpy(ECU_ID, request->arg("ecuid").c_str());
+   strcpy(userPwd, request->arg("pw1").c_str());
+//   pollRes = request->arg("pr").toInt();
+//   hc_IDX = request->arg("hcidx").toInt();
+   pollOffset = request->arg("offs").toInt();  
+// this value gets currupted when it is negative, we get 256 -/- the number
+// so -2 becomes 254
+//   if (po > 200) { pollOffset = po - 256; } else { pollOffset = po; } 
+   
+   
+//   calliBration = request->arg("cali").toFloat();
+//BEWARE CHECKBOX
+String dag = "";
+if(request->hasParam("pL")) {
+dag = request->getParam("pL")->value();  
+}
+   if (dag == "on") { Polling = true; } else { Polling = false;}
+  //toSend = FPSTR(CONFIRM);
+  basisConfigsave();  // alles opslaan
+ // request->send_P(200, "text/html", CONFIRM); //send the html code to the client
+ 
+  //DebugPrintln("basisconfig saved");
+  actionFlag=25; // recalculates the time with these new values 
+}

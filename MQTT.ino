@@ -10,18 +10,19 @@ bool mqttConnect() {   //
     if (Mqtt_Port[0] == '\0' ) strcpy(Mqtt_Port, "1883");   // just in case ....
     uint8_t retry = 3;
     
-    //char Mqtt_inTopic[11]={"ESP-ECU/in"};
+    //String Clientid = getChipId(false); 
 
     while (!MQTT_Client.connected()) {
 
-      if ( MQTT_Client.connect( Mqtt_Clientid, Mqtt_Username, Mqtt_Password) )
+      if ( MQTT_Client.connect( getChipId(false).c_str(), Mqtt_Username, Mqtt_Password) )
       {
          //connected, so subscribe to inTopic (not for thingspeak)
         if(Mqtt_Format != 5 ) {
-        if(  MQTT_Client.subscribe ( "ESP32-ECU/in" ) ) {
+        String clientid = getChipId(false) + "/in"; 
+        if(  MQTT_Client.subscribe ( clientid.c_str() ) ) {
         //if(  MQTT_Client.subscribe ( Mqtt_inTopic ) ) { 
                //if(diagNose) ws.textAll("subscribed to " + String(Mqtt_inTopic ));
-               consoleOut("subscribed to ESP32-ECU/in");
+               consoleOut("subscribed to " + clientid);
            }
         }
          consoleOut(F("mqtt connected"));
@@ -57,7 +58,7 @@ void MQTT_Receive_Callback(char *topic, byte *payload, unsigned int length)
     
    // ws.textAll("mqtt received " + Payload);
 
-    StaticJsonDocument<1024> doc;       // We use json library to parse the payload                         
+    JsonDocument doc;       // We use json library to parse the payload                         
    //  The function deserializeJson() parses a JSON input and puts the result in a JsonDocument.
    // DeserializationError error = deserializeJson(doc, Payload); // Deserialize the JSON document
     DeserializationError error = deserializeJson(doc, payload); // Deserialize the JSON document
@@ -66,12 +67,30 @@ void MQTT_Receive_Callback(char *topic, byte *payload, unsigned int length)
        consoleOut("mqtt no valid json ");
         return;
     } 
-    
+    consoleOut("Deserialized JSON:");
+    serializeJson(doc, Serial);     // Print in one line
+    Serial.println();
     // We check the kind of command format received with MQTT
-    //now we have a payload like {"poll",1}    
-
-    if( doc.containsKey("poll") )
+      // if( doc["throttle"] != 0 )
+    //if(doc.containsKey("throttle"))
+    if (!doc["throttle"].isNull())
     {
+       int invert = doc["throttle"].as<int>(); 
+       int throtVal = doc["val"].as<int>(); 
+       String term = "mqtt got message {\"throttle\":" + String(invert) + ",\"val\":" + String(throtVal) + "}";
+       consoleOut(term);
+      if(invert > inverterCount || invert < 0 || throtVal > 700 || throtVal < 20 )
+         {
+         consoleOut("invalid value(s), skipping");
+         return; 
+         }
+      Inv_Prop[invert].maxPower = throtVal;
+      actionFlag = 240 + invert;  
+    }  
+
+    if (!doc["poll"].isNull())
+    {
+      //now we have a payload like {"poll",1} 
         int inv = doc["poll"].as<int>(); 
         consoleOut( "got message {\"poll\":" + String(inv) + "}" );
 
@@ -99,5 +118,6 @@ void MQTT_Receive_Callback(char *topic, byte *payload, unsigned int length)
         {
           consoleOut("polling = automatic, skipping");
         }
+        consoleOut("nothing familiair found in mqtt");
     }
 }
