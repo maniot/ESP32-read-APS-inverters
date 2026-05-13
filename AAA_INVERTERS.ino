@@ -91,6 +91,7 @@ window.location.href='/MENU';
     <option value='1' invtype_1>QS1</option></select>
     </tr>
     <tr><td class="cap" >NAME<td class="cap" ><input class='inp4' id='il' name='il' maxlength='12' value='{location}'></input>
+    <tr><td class="cap" >CALIBR<td class="cap" ><input class='inp2' id='cv' name='pMax' type='number' min='-15' max='15' step='1' value='{cal}'></input>
     <tr><td class="cap" >DOM. IDX<td class="cap" ><input class='inp2' name='mqidx' value='{idx}' size='4' length='4'></td></tr>
     <tr><td class="cap" >PANELS: 
     <td style='width: 230px;'>
@@ -150,6 +151,8 @@ void handleInverterconfig(AsyncWebServerRequest *request)
    strcpy(Inv_Prop[iKeuze].invSerial, request->arg("iv").c_str());
    Inv_Prop[iKeuze].invType = request->arg("invt").toInt(); //values are 0 1 2  
    Inv_Prop[iKeuze].invIdx = request->arg("mqidx").toInt(); //values are 0 1  
+   Inv_Prop[iKeuze].calib = request->arg("cal").toInt(); //
+
 // the selectboxes
    char tempChar[1] = "";
    if(request->hasParam("pan1")) { Inv_Prop[iKeuze].conPanels[0] = true;} else { Inv_Prop[iKeuze].conPanels[0] = false;}  // mqselect
@@ -378,6 +381,8 @@ void inverterForm() {
         toSend.replace("000000", String(Inv_Prop[iKeuze].invSerial)); // handled by the script
         toSend.replace("{location}", String(Inv_Prop[iKeuze].invLocation));
         toSend.replace("{idx}", String(Inv_Prop[iKeuze].invIdx));
+        toSend.replace("{cal}", String(Inv_Prop[iKeuze].calib));
+        
         // the selectboxes
         if (Inv_Prop[iKeuze].conPanels[0]) { toSend.replace("#1check", "checked");}
         if (Inv_Prop[iKeuze].conPanels[1]) { toSend.replace("#2check", "checked");}

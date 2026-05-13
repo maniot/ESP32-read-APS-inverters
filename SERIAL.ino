@@ -129,7 +129,7 @@ void handle_Serial () {
             Serial.println("inverter = " + String(kz));
             Serial.println("watt = " + String(watt));
             Serial.println("inverterCount =" + String(inverterCount));
-            Inv_Prop[kz].maxPower = watt;
+            desiredThrottle[kz] = watt;
             }  
               if ( kz > inverterCount-1 ) {
               Serial.println("error, no such inverter");

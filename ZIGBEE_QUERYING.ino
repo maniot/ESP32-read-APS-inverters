@@ -62,21 +62,7 @@ int decodeQueryAnswer(int welke)
         consoleOut(F("decodeQueryAnswer: no answer on request"));  
         return 50; //no answer
       }          
-    // if(strstr(messageToDecode,  "FE01640100") == NULL) // answer to AF_DATA_REQUEST 00=success
-    // {
-    //  consoleOut( "AF_DATA_REQUEST failed" );
-    //  fault = 10;    
-    // } else
-    // if (strstr(messageToDecode, "FE03448000") == NULL) //  AF_DATA_CONFIRM the 00 byte = success
-    // {
-    //   consoleOut("no AF_DATA_CONFIRM");
-    //   fault = 11;
-    // } else
-    // if (strstr(messageToDecode, "FE0345C4") == NULL) //  ZDO_SRC_RTG_IND
-    // {
-    //   consoleOut("no route receipt");
-    //   //return 12; // this command seems facultative
-    // } else 
+ 
     if (strstr(messageToDecode, "4481") == NULL)
     {
       consoleOut("no  AF_INCOMING_MSG"); // this is the real answer
@@ -111,11 +97,15 @@ int decodeQueryAnswer(int welke)
         strncpy(before, ptr - 4, 4);
         before[4] = '\0';
         int decimalValue = (int)strtol(before, NULL, 16) / 28.89; // convert from hex string to int
+        //we must compare decimalValue with maxPower
+        // so we have calculate it back with the calibrateFactor
+        int programmedVal = decimalValue - desiredThrottle[welke];
         //double result = decimalValue / 28.89;
         consoleOut("power value YC600 = " + String(decimalValue));
         // this should match with the set throttle value which is
-        consoleOut("Inv_Prop[welke].maxPower = " + String(Inv_Prop[welke].maxPower));
-        if(abs(decimalValue - Inv_Prop[welke].maxPower) > 2) return 15;
+        consoleOut("desiredThrottle[welke] = " + String(desiredThrottle[welke]));
+        
+        if(abs(desiredThrottle[welke] - programmedVal) > 2) return 16;
         } else {
         consoleOut("0x3B66 not found or not enough characters before it.");
         return 15;
@@ -132,9 +122,14 @@ int decodeQueryAnswer(int welke)
      memcpy(powval, payload + 10, 4); // copy "26E2"
      int decimalValue = (int)strtol(powval, NULL, 16) / 16.59;
      String term="power value DS3 = " + String(powval) + " this is dec. " + String(decimalValue);
+     
+     //we must compare decimalValue with maxPower
+     // so we have calculate it back with the calibrateFactor
+     int programmedVal = decimalValue - Inv_Prop[welke].calib;
+
      consoleOut(term);
-     consoleOut("Inv_Prop[welke].maxPower = " + String(Inv_Prop[welke].maxPower));
-     if(abs(decimalValue - Inv_Prop[welke].maxPower) > 2) return 15;
+     consoleOut("desiredThrottle[welke] = " + String(desiredThrottle[welke]));
+     if(abs(desiredThrottle[welke] - programmedVal) > 2) return 15;
     }
     
     return 0;

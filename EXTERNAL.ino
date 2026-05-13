@@ -43,7 +43,7 @@ if ( intern ) {    //DebugPrintln("the request comes from inside the network");
   
     Serial.println("inv = " + String(Invert));
     Serial.println("val = " + String(throtVal));
-    Inv_Prop[Invert].maxPower = throtVal;
+    desiredThrottle[Invert] = throtVal;
     if(Invert > inverterCount || Invert < 0 || throtVal > 700 || throtVal < 20 )
     {
       request->send ( 200, "text/plain", "invalid value(s)" );

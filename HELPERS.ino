@@ -134,24 +134,38 @@ int readInverterfiles() {
       int whichInv = actionFlag - 240; // with 248 this would be 8  0 1 2 3 4 5 6 7 8 is in range
       consoleOut("inside actionFlag: whichInv is " + String(whichInv));
       actionFlag = 0; //reset the actionflag
-
+      // als setmaxpower geslaagd is dan 
       if(setMaxPower(whichInv) == true) {
-         Inv_Prop[whichInv].throttled = true;
+         //Inv_Prop[whichInv].throttled = true;
           String term= "throttle inv " + String(whichInv) + " success";
           Update_Log(2, term.c_str());
       } else {
         // the setPower command failed, so we set out value to 800
-        Inv_Prop[whichInv].maxPower = -1;
-        Inv_Prop[whichInv].throttled = false;
+        desiredThrottle[whichInv] = -1;
+        //Inv_Prop[whichInv].throttled = false;
         String term= "throttle inv " + String(whichInv) + " failed";
         consoleOut("throttle failed inv " + String(whichInv));
         Update_Log(2, term.c_str());
       }
+      //now save in preferences
+      //Preferences 'namespace' (map) in writemodus (false = write mode)
+      preferences.begin("my-data", false); 
+
+      // ake a key for this specific inverter (ed. "maxPwr2")
+      String key = "maxPwr" + String(whichInv);
+      // save
+      preferences.putInt(key.c_str(), desiredThrottle[whichInv]);
+      // close preferences 
+      preferences.end();
+      // Optioneel: Print een bevestiging naar de Seriële Monitor
+      consoleOut("Successfully saved: " + key + " = " + String(desiredThrottle[whichInv]));
     
-    String bestand = "/Inv_Prop" + String(whichInv) + ".str"; // /Inv_Prop0.str
-    consoleOut("going to write " + bestand );
-    writeStruct(bestand, whichInv); // alles opslaan in SPIFFS
+    //String bestand = "/Inv_Prop" + String(whichInv) + ".str"; // /Inv_Prop0.str
+    //consoleOut("going to write " + bestand );
+    //writeStruct(bestand, whichInv); // alles opslaan in SPIFFS
     }
+    
+    
     if (actionFlag == 43) { //triggered by the console
         actionFlag = 0; //reset the actionflag
         inverterReboot(iKeuze);

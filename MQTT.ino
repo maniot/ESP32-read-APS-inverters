@@ -84,7 +84,7 @@ void MQTT_Receive_Callback(char *topic, byte *payload, unsigned int length)
          consoleOut("invalid value(s), skipping");
          return; 
          }
-      Inv_Prop[invert].maxPower = throtVal;
+      desiredThrottle[invert] = throtVal;
       actionFlag = 240 + invert;  
     }  
 

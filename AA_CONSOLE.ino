@@ -204,7 +204,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
                 int watt = atoi(second + 1);
             consoleOut("inverter = " + String(kz));
             consoleOut("watt = " + String(watt));
-            Inv_Prop[kz].maxPower = watt;
+            desiredThrottle[kz] = watt;
             }  
               if ( kz > inverterCount-1 ) {
               ws.textAll("error, no such inverter");
